@@ -1,6 +1,6 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QAction, QWidget, QVBoxLayout, QLabel
-from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication, QSystemTrayIcon, QMenu, QAction, QWidget, QVBoxLayout, QLabel, QGraphicsDropShadowEffect
+from PyQt5.QtGui import QIcon, QColor
 from PyQt5.QtCore import Qt, QEvent
 
 class TrayApp(QWidget):
@@ -14,11 +14,22 @@ class TrayApp(QWidget):
 
     def init_ui(self):
         self.setWindowTitle('PC Monitor')
-        self.setWindowIcon(QIcon('icon.png'))
+        self.setWindowIcon(QIcon('resources/icons/tray.png'))
         
         # Set window dimensions and style
-        self.setGeometry(100, 100, 300, 200)
-        self.setStyleSheet("background-color: white; border-radius: 10px;")
+        self.setGeometry(100, 100, 380, 600)
+        self.setStyleSheet("""
+            background-color: white;
+            border-radius: 10px;
+        """)
+        
+        # Set shadow effect to the main window/widget
+        shadow = QGraphicsDropShadowEffect(self)
+        shadow.setBlurRadius(15)
+        shadow.setXOffset(0)
+        shadow.setYOffset(0)
+        shadow.setColor(QColor(0, 0, 0, 128))
+        self.setGraphicsEffect(shadow)
         
         # Set the window to frameless and transparent
         self.setWindowFlags(self.windowFlags() | Qt.Tool | Qt.FramelessWindowHint)
@@ -34,13 +45,14 @@ class TrayApp(QWidget):
         tray_menu.addAction(close_action)
 
         self.tray_icon = QSystemTrayIcon(self)
-        self.tray_icon.setIcon(QIcon('icon.png'))
+        self.tray_icon.setIcon(QIcon('resources/icons/tray.png'))
         self.tray_icon.setContextMenu(tray_menu)
         self.tray_icon.activated.connect(self.on_tray_icon_activated)
         self.tray_icon.setToolTip('PC Monitor')
 
     def build_ui(self):
         layout = QVBoxLayout()
+        layout.setContentsMargins(25, 25, 25, 25)
         
         label = QLabel("This is a tray application!")
         layout.addWidget(label)
@@ -51,7 +63,7 @@ class TrayApp(QWidget):
         if reason == QSystemTrayIcon.Trigger:
             # Calculate the position to make the window appear above the tray icon
             tray_position = self.tray_icon.geometry().center()
-            self.move(tray_position.x() - self.width() // 2, tray_position.y() - self.height() - 25)
+            self.move(tray_position.x() - self.width() // 2, tray_position.y() - self.height() - 10)
 
             if self.isVisible():
                 self.hide()
